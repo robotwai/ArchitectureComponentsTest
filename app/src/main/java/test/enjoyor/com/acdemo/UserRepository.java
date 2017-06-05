@@ -20,6 +20,8 @@ public class UserRepository {
     private final Webservice webservice;
     private final UserDao userDao;
     private final Executor executor;
+    private int FRESH_TIMEOUT = 5;
+
 
     @Inject
     public UserRepository(Webservice webservice, UserDao userDao, Executor executor) {
@@ -50,15 +52,20 @@ public class UserRepository {
         executor.execute(() -> {
             // running in a background thread
             // check if user was fetched recently
-//            boolean userExists = userDao.hasUser(FRESH_TIMEOUT);
-//            if (!userExists) {
-//                // refresh the data
-//                Response response = webservice.getUser(userId).execute();
-//                // TODO check for error etc.
-//                // Update the database.The LiveData will automatically refresh so
-//                // we don't need to do anything else here besides updating the database
-//                userDao.save(response.body());
-//            }
+            boolean userExists = userDao.hasUser(FRESH_TIMEOUT);
+            if (!userExists) {
+                // refresh the data
+                try {
+                    Response<User> response = webservice.getUser(userId).execute();
+                    userDao.save(response.body());
+                }catch (Exception e){
+
+                }
+
+                // TODO check for error etc.
+                // Update the database.The LiveData will automatically refresh so
+                // we don't need to do anything else here besides updating the database
+            }
         });
     }
 }

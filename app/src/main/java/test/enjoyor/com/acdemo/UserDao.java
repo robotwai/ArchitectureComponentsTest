@@ -17,4 +17,7 @@ public interface UserDao {
     void save(User user);
     @Query("SELECT * FROM user WHERE id = :userId")
     LiveData<User> load(String userId);
+    boolean hasUser(int time);
+
+
 }
